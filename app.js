@@ -63,24 +63,22 @@ var showError = function(error){
 };
 
 var getTopAnswerers = function(answerersTags) {
-	//just testing what i get back with json api call
-	$.getJSON('http://api.stackexchange.com/2.2/tags/'+ answerersTags + '/top-answerers/all_time?site=stackoverflow',
-	 {param1: 'items'}, function(json, textStatus) {
-			/*optional stuff to do after success */
-			console.log(json.items);
-	});
 	var request = {
-
+		site: 'stackoverflow',
 	};
 
-	var result = $.ajax({
-		url: 'http://api.stackexchange.com/2.2/tags/'+ answerersTags + '/top-answerers/all_time?site=stackoverflow',
+	$.ajax({
+		url: 'http://api.stackexchange.com/2.2/tags/'+ answerersTags + '/top-answerers/all_time?',
 		type: 'GET',
 		dataType: 'jsonp',
-		data: {param1: 'value1'}
+		data: request,
 	})
-	.done(function() {
+	.done(function(result) {
 		console.log("success");
+		console.log(result);
+		//var searchResults = showSearchResults(request.tagged, result.items.length);
+
+	//	$('.search-results').html(searchResults);
 	})
 	.fail(function() {
 		console.log("error");
