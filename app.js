@@ -62,12 +62,44 @@ var showError = function(error){
 	errorElem.append(errorText);
 };
 
+var showTopAnswerers = function(question) {
+
+	// clone our result template code
+	var result = $('.templates .question').clone();
+
+	// Set the answerer name properties in result
+	var questionElem = result.find('.question-text a');
+	questionElem.attr('href', question.user.link);
+	questionElem.text(question.user.display_name);
+	$('.question > dt:first').text('Answerer Name');
+
+	// set the #accept_rate for question property in result
+	var viewed = result.find('.viewed');
+	viewed.text(question.user.accept_rate);
+	$('.question > dt:nth-child(5)').text("Acceptance Rate");
+
+	// set the #accept_rate for question property in result
+	var asked = result.find('.asked-date');
+	asked.text(question.user.reputation);
+	$('.question > dt:nth-child(3)').text("Reputation");
+	$('.question > dt:nth-child(7)').text("Post Count & Score");
+
+	// set some properties related to asker
+	var asker = result.find('.asker');
+	asker.html('<p>Post Count: ' + question.post_count + '</p>' +
+ 							'<p>Score: ' + question.score + '</p>'
+	);
+
+	return result;
+};
+
 var getTopAnswerers = function(answerersTags) {
 	var request = {
 		site: 'stackoverflow',
+		tagged: answerersTags,
 	};
 
-	$.ajax({
+	var result = $.ajax({
 		url: 'http://api.stackexchange.com/2.2/tags/'+ answerersTags + '/top-answerers/all_time?',
 		type: 'GET',
 		dataType: 'jsonp',
@@ -76,9 +108,14 @@ var getTopAnswerers = function(answerersTags) {
 	.done(function(result) {
 		console.log("success");
 		console.log(result);
-		//var searchResults = showSearchResults(request.tagged, result.items.length);
+		var searchResults = showSearchResults(request.tagged, result.items.length);
+		$('.search-results').html(searchResults);
 
-	//	$('.search-results').html(searchResults);
+		$.each(result.items, function(i, item) {
+			var question = showTopAnswerers(item);
+			$('.results').append(question);
+		});
+
 	})
 	.fail(function() {
 		console.log("error");
@@ -90,7 +127,6 @@ var getTopAnswerers = function(answerersTags) {
 
 
 };
-
 // takes a string of semi-colon separated tags to be searched
 // for on StackOverflow
 var getUnanswered = function(tags) {
